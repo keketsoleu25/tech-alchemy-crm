@@ -7,19 +7,19 @@ datasource db {
 }
 
 model User {
-  id                   String    @id @default(cuid())
+  id                   String         @id @default(cuid())
   name                 String?
-  email                String    @unique
+  email                String         @unique
   emailVerified        DateTime?
   password             String?
   image                String?
-  role                 Role      @default(USER)
-  passwordResetToken   String?   @unique
+  role                 Role           @default(USER)
+  passwordResetToken   String?        @unique
   passwordResetExpires DateTime?
-  emailVerifyToken     String?   @unique
+  emailVerifyToken     String?        @unique
   emailVerifyExpires   DateTime?
-  createdAt            DateTime  @default(now())
-  updatedAt            DateTime  @updatedAt
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
   accounts             Account[]
   sessions             Session[]
   clients              Client[]
@@ -27,6 +27,7 @@ model User {
   projects             Project[]
   tasks                Task[]
   invoices             Invoice[]
+  notifications        Notification[]
 
   @@index([email])
 }
@@ -73,6 +74,8 @@ model Lead {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  notifications Notification[]
+
   @@index([userId])
   @@index([status])
 }
@@ -102,8 +105,9 @@ model Project {
   clientId String?
   client   Client? @relation(fields: [clientId], references: [id], onDelete: SetNull)
 
-  tasks    Task[]
-  invoices Invoice[]
+  tasks         Task[]
+  invoices      Invoice[]
+  notifications Notification[]
 
   @@index([userId])
   @@index([clientId])
@@ -138,6 +142,8 @@ model Task {
   projectId String
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
+  notifications Notification[]
+
   @@index([userId])
   @@index([projectId])
   @@index([status])
@@ -171,7 +177,8 @@ model Invoice {
   projectId String?
   project   Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
 
-  lineItems InvoiceLineItem[]
+  lineItems     InvoiceLineItem[]
+  notifications Notification[]
 
   @@index([userId])
   @@index([clientId])
@@ -189,6 +196,54 @@ model InvoiceLineItem {
   invoiceId String
   invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
 
+  @@index([invoiceId])
+}
+
+enum NotificationType {
+  INFO
+  SUCCESS
+  WARNING
+  ERROR
+  TASK_ASSIGNED
+  INVOICE_DUE
+  LEAD_UPDATE
+  PROJECT_UPDATE
+  SYSTEM
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  type      NotificationType @default(INFO)
+  title     String
+  message   String
+  actionUrl String?
+  readAt    DateTime?
+  deletedAt DateTime?
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  leadId String?
+  lead   Lead?   @relation(fields: [leadId], references: [id], onDelete: SetNull)
+
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  taskId String?
+  task   Task?   @relation(fields: [taskId], references: [id], onDelete: SetNull)
+
+  invoiceId String?
+  invoice   Invoice? @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([type])
+  @@index([readAt])
+  @@index([deletedAt])
+  @@index([leadId])
+  @@index([projectId])
+  @@index([taskId])
   @@index([invoiceId])
 }
 
