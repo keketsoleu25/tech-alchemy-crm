@@ -44,6 +44,15 @@ export async function POST(req: Request) {
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
+
+    if (!hashedPassword || !hashedPassword.startsWith("$2")) {
+      console.error("Password hashing failed for registration:", email);
+      return NextResponse.json(
+        { error: "Internal server error" },
+        { status: 500 }
+      );
+    }
+
     const emailVerifyToken = generateToken();
     const emailVerifyExpires = getTokenExpiry(24);
 
