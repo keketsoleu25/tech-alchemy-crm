@@ -26,6 +26,7 @@ model User {
   leads                Lead[]
   projects             Project[]
   tasks                Task[]
+  invoices             Invoice[]
 
   @@index([email])
 }
@@ -43,6 +44,7 @@ model Client {
   userId   String
   user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   projects Project[]
+  invoices Invoice[]
 
   @@index([userId])
 }
@@ -100,7 +102,8 @@ model Project {
   clientId String?
   client   Client? @relation(fields: [clientId], references: [id], onDelete: SetNull)
 
-  tasks Task[]
+  tasks    Task[]
+  invoices Invoice[]
 
   @@index([userId])
   @@index([clientId])
@@ -138,6 +141,55 @@ model Task {
   @@index([userId])
   @@index([projectId])
   @@index([status])
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+model Invoice {
+  id            String        @id @default(cuid())
+  invoiceNumber String        @unique
+  status        InvoiceStatus @default(DRAFT)
+  issueDate     DateTime      @default(now())
+  dueDate       DateTime?
+  notes         String?
+  taxRate       Decimal?      @db.Decimal(5, 2)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  clientId String?
+  client   Client? @relation(fields: [clientId], references: [id], onDelete: SetNull)
+
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  lineItems InvoiceLineItem[]
+
+  @@index([userId])
+  @@index([clientId])
+  @@index([projectId])
+  @@index([status])
+  @@index([invoiceNumber])
+}
+
+model InvoiceLineItem {
+  id          String  @id @default(cuid())
+  description String
+  quantity    Decimal @db.Decimal(10, 2)
+  unitPrice   Decimal @db.Decimal(10, 2)
+
+  invoiceId String
+  invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
 }
 
 model Account {
