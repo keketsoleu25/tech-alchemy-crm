@@ -23,6 +23,7 @@ model User {
   accounts             Account[]
   sessions             Session[]
   clients              Client[]
+  leads                Lead[]
 
   @@index([email])
 }
@@ -37,10 +38,38 @@ model Client {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+enum LeadStatus {
+  NEW_LEAD
+  CONTACTED
+  PROPOSAL_SENT
+  NEGOTIATION
+  WON
+  LOST
+}
+
+model Lead {
+  id             String     @id @default(cuid())
+  name           String
+  email          String?
+  phone          String?
+  company        String?
+  notes          String?
+  estimatedValue Decimal?   @db.Decimal(10, 2)
+  status         LeadStatus @default(NEW_LEAD)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  userId         String
+  user           User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
 }
 
 model Account {
