@@ -22,8 +22,25 @@ model User {
   updatedAt            DateTime  @updatedAt
   accounts             Account[]
   sessions             Session[]
+  clients              Client[]
 
   @@index([email])
+}
+
+model Client {
+  id        String   @id @default(cuid())
+  name      String
+  email     String?
+  phone     String?
+  company   String?
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model Account {
