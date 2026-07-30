@@ -1,9 +1,16 @@
 ﻿import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+function getResend() {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) {
+    throw new Error("RESEND_API_KEY is not set");
+  }
+  return new Resend(key);
+}
 
 export async function sendVerificationEmail(email: string, token: string) {
   const verifyUrl = `${process.env.NEXTAUTH_URL}/verify-email?token=${token}`;
+  const resend = getResend();
 
   const { error } = await resend.emails.send({
     from: process.env.EMAIL_FROM || "Tech Alchemy CRM <onboarding@resend.dev>",
@@ -25,6 +32,7 @@ export async function sendVerificationEmail(email: string, token: string) {
 
 export async function sendPasswordResetEmail(email: string, token: string) {
   const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password?token=${token}`;
+  const resend = getResend();
 
   const { error } = await resend.emails.send({
     from: process.env.EMAIL_FROM || "Tech Alchemy CRM <onboarding@resend.dev>",
