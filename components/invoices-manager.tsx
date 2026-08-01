@@ -71,10 +71,10 @@ const STATUS_STYLES: Record<InvoiceStatus, string> = {
 };
 
 function money(n: number) {
-  return `R ${n.toLocaleString(undefined, {
+  return "R " + n.toLocaleString(undefined, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  })}`;
+  });
 }
 
 function calcTotals(lineItems: LineItem[], taxRate: string) {
@@ -94,19 +94,14 @@ function formatDate(value: string | null) {
   return new Date(value).toLocaleDateString();
 }
 
-export default function InvoicesManager({
-  initialInvoices,
-  initialTotal,
-  pageSize,
-  clients,
-  projects,
-}: {
+export default function InvoicesManager(props: {
   initialInvoices: Invoice[];
   initialTotal: number;
   pageSize: number;
   clients: ClientOption[];
   projects: ProjectOption[];
 }) {
+  const { initialInvoices, initialTotal, pageSize, clients, projects } = props;
   const router = useRouter();
   const [invoices, setInvoices] = useState<Invoice[]>(initialInvoices);
   const [total, setTotal] = useState(initialTotal);
@@ -124,7 +119,7 @@ export default function InvoicesManager({
   const loadPage = useCallback(async (targetPage: number) => {
     setLoadingPage(true);
     try {
-      const res = await fetch(`/api/invoices?page=${targetPage}`);
+      const res = await fetch("/api/invoices?page=" + targetPage);
       const data = await res.json();
       if (res.ok) {
         setInvoices(data.invoices);
@@ -208,7 +203,7 @@ export default function InvoicesManager({
     setSubmitting(true);
     setError(null);
 
-    const url = editingId ? `/api/invoices/${editingId}` : "/api/invoices";
+    const url = editingId ? "/api/invoices/" + editingId : "/api/invoices";
     const method = editingId ? "PATCH" : "POST";
 
     try {
@@ -253,7 +248,7 @@ export default function InvoicesManager({
 
     setDeletingId(id);
     try {
-      const res = await fetch(`/api/invoices/${id}`, { method: "DELETE" });
+      const res = await fetch("/api/invoices/" + id, { method: "DELETE" });
       if (!res.ok) {
         const data = await res.json();
         alert(data.error || "Failed to delete invoice");
@@ -306,107 +301,74 @@ export default function InvoicesManager({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
-              <label className="block text-xs text-gray-400 mb-1">
-                Client
-              </label>
+              <label className="block text-xs text-gray-400 mb-1">Client</label>
               <select
                 value={form.clientId}
-                onChange={(e) =>
-                  setForm({ ...form, clientId: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, clientId: e.target.value })}
                 className="w-full rounded-md border border-gray-700 bg-black px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-gray-500"
               >
                 <option value="">No client</option>
                 {clients.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
+                  <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
               </select>
             </div>
 
             <div>
-              <label className="block text-xs text-gray-400 mb-1">
-                Project
-              </label>
+              <label className="block text-xs text-gray-400 mb-1">Project</label>
               <select
                 value={form.projectId}
-                onChange={(e) =>
-                  setForm({ ...form, projectId: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, projectId: e.target.value })}
                 className="w-full rounded-md border border-gray-700 bg-black px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-gray-500"
               >
                 <option value="">No project</option>
                 {projects.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name}
-                  </option>
+                  <option key={p.id} value={p.id}>{p.name}</option>
                 ))}
               </select>
             </div>
 
             <div>
-              <label className="block text-xs text-gray-400 mb-1">
-                Status
-              </label>
+              <label className="block text-xs text-gray-400 mb-1">Status</label>
               <select
                 value={form.status}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    status: e.target.value as InvoiceStatus,
-                  })
-                }
+                onChange={(e) => setForm({ ...form, status: e.target.value as InvoiceStatus })}
                 className="w-full rounded-md border border-gray-700 bg-black px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-gray-500"
               >
                 {Object.entries(STATUS_LABELS).map(([value, label]) => (
-                  <option key={value} value={value}>
-                    {label}
-                  </option>
+                  <option key={value} value={value}>{label}</option>
                 ))}
               </select>
             </div>
 
             <div>
-              <label className="block text-xs text-gray-400 mb-1">
-                Issue date
-              </label>
+              <label className="block text-xs text-gray-400 mb-1">Issue date</label>
               <input
                 type="date"
                 value={form.issueDate}
-                onChange={(e) =>
-                  setForm({ ...form, issueDate: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, issueDate: e.target.value })}
                 className="w-full rounded-md border border-gray-700 bg-black px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-gray-500"
               />
             </div>
 
             <div>
-              <label className="block text-xs text-gray-400 mb-1">
-                Due date
-              </label>
+              <label className="block text-xs text-gray-400 mb-1">Due date</label>
               <input
                 type="date"
                 value={form.dueDate}
-                onChange={(e) =>
-                  setForm({ ...form, dueDate: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, dueDate: e.target.value })}
                 className="w-full rounded-md border border-gray-700 bg-black px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-gray-500"
               />
             </div>
 
             <div>
-              <label className="block text-xs text-gray-400 mb-1">
-                Tax rate (%)
-              </label>
+              <label className="block text-xs text-gray-400 mb-1">Tax rate (%)</label>
               <input
                 type="number"
                 step="0.01"
                 min="0"
                 value={form.taxRate}
-                onChange={(e) =>
-                  setForm({ ...form, taxRate: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, taxRate: e.target.value })}
                 className="w-full rounded-md border border-gray-700 bg-black px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-gray-500"
               />
             </div>
@@ -414,14 +376,8 @@ export default function InvoicesManager({
 
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="block text-xs text-gray-400">
-                Line items *
-              </label>
-              <button
-                type="button"
-                onClick={addLineItem}
-                className="text-xs text-gray-300 hover:text-white"
-              >
+              <label className="block text-xs text-gray-400">Line items *</label>
+              <button type="button" onClick={addLineItem} className="text-xs text-gray-300 hover:text-white">
                 + Add line
               </button>
             </div>
@@ -432,18 +388,13 @@ export default function InvoicesManager({
                 const price = parseFloat(item.unitPrice) || 0;
                 const lineTotal = qty * price;
                 return (
-                  <div
-                    key={index}
-                    className="grid grid-cols-12 gap-2 items-center"
-                  >
+                  <div key={index} className="grid grid-cols-12 gap-2 items-center">
                     <input
                       type="text"
                       placeholder="Description"
                       required
                       value={item.description}
-                      onChange={(e) =>
-                        updateLineItem(index, "description", e.target.value)
-                      }
+                      onChange={(e) => updateLineItem(index, "description", e.target.value)}
                       className="col-span-6 rounded-md border border-gray-700 bg-black px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-gray-500"
                     />
                     <input
@@ -453,9 +404,7 @@ export default function InvoicesManager({
                       placeholder="Qty"
                       required
                       value={item.quantity}
-                      onChange={(e) =>
-                        updateLineItem(index, "quantity", e.target.value)
-                      }
+                      onChange={(e) => updateLineItem(index, "quantity", e.target.value)}
                       className="col-span-2 rounded-md border border-gray-700 bg-black px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-gray-500"
                     />
                     <input
@@ -465,9 +414,7 @@ export default function InvoicesManager({
                       placeholder="Unit price"
                       required
                       value={item.unitPrice}
-                      onChange={(e) =>
-                        updateLineItem(index, "unitPrice", e.target.value)
-                      }
+                      onChange={(e) => updateLineItem(index, "unitPrice", e.target.value)}
                       className="col-span-2 rounded-md border border-gray-700 bg-black px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-gray-500"
                     />
                     <div className="col-span-1 text-xs text-gray-400 text-right">
@@ -518,11 +465,7 @@ export default function InvoicesManager({
               disabled={submitting}
               className="rounded-md bg-white px-4 py-2 text-sm font-medium text-black hover:bg-gray-200 transition-colors disabled:opacity-50"
             >
-              {submitting
-                ? "Saving..."
-                : editingId
-                ? "Save changes"
-                : "Create invoice"}
+              {submitting ? "Saving..." : editingId ? "Save changes" : "Create invoice"}
             </button>
             <button
               type="button"
@@ -537,16 +480,10 @@ export default function InvoicesManager({
 
       {invoices.length === 0 ? (
         <div className="rounded-lg border border-gray-800 bg-gray-950 p-10 text-center">
-          <p className="text-gray-400 text-sm">
-            No invoices yet. Add your first one to get started.
-          </p>
+          <p className="text-gray-400 text-sm">No invoices yet. Add your first one to get started.</p>
         </div>
       ) : (
-        <div
-          className={`rounded-lg border border-gray-800 bg-gray-950 overflow-hidden ${
-            loadingPage ? "opacity-50" : ""
-          }`}
-        >
+        <div className={"rounded-lg border border-gray-800 bg-gray-950 overflow-hidden" + (loadingPage ? " opacity-50" : "")}>
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-800 text-left text-gray-400">
@@ -560,50 +497,22 @@ export default function InvoicesManager({
             </thead>
             <tbody>
               {invoices.map((invoice) => {
-                const totals = calcTotals(
-                  invoice.lineItems,
-                  invoice.taxRate ?? "0"
-                );
+                const totals = calcTotals(invoice.lineItems, invoice.taxRate ?? "0");
+                const pdfUrl = "/api/invoices/" + invoice.id + "/pdf";
                 return (
-                  <tr
-                    key={invoice.id}
-                    className="border-b border-gray-800 last:border-0"
-                  >
-                    <td className="px-4 py-3 text-white font-medium">
-                      {invoice.invoiceNumber}
-                    </td>
-                    <td className="px-4 py-3 text-gray-300">
-                      {invoice.client?.name || "-"}
-                    </td>
+                  <tr key={invoice.id} className="border-b border-gray-800 last:border-0">
+                    <td className="px-4 py-3 text-white font-medium">{invoice.invoiceNumber}</td>
+                    <td className="px-4 py-3 text-gray-300">{invoice.client?.name || "-"}</td>
                     <td className="px-4 py-3">
-                      <span
-                        className={`inline-block rounded-full border px-2 py-0.5 text-xs ${STATUS_STYLES[invoice.status]}`}
-                      >
+                      <span className={"inline-block rounded-full border px-2 py-0.5 text-xs " + STATUS_STYLES[invoice.status]}>
                         {STATUS_LABELS[invoice.status]}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-gray-300">
-                      {money(totals.total)}
-                    </td>
-                    <td className="px-4 py-3 text-gray-300">
-                      {formatDate(invoice.dueDate)}
-                    </td>
+                    <td className="px-4 py-3 text-gray-300">{money(totals.total)}</td>
+                    <td className="px-4 py-3 text-gray-300">{formatDate(invoice.dueDate)}</td>
                     <td className="px-4 py-3 text-right space-x-3 whitespace-nowrap">
-                      
-                        href={`/api/invoices/${invoice.id}/pdf`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-gray-300 hover:text-white text-sm"
-                      >
-                        PDF
-                      </a>
-
-                      <button
-                        onClick={() => startEdit(invoice)}
-                        className="text-gray-300 hover:text-white text-sm"
-                      >
-                        Edit
-                      </button>
+                      <a href={pdfUrl} target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white text-sm">PDF</a>
+                      <button onClick={() => startEdit(invoice)} className="text-gray-300 hover:text-white text-sm">Edit</button>
                       <button
                         onClick={() => handleDelete(invoice.id)}
                         disabled={deletingId === invoice.id}
@@ -629,9 +538,7 @@ export default function InvoicesManager({
           >
             Previous
           </button>
-          <span className="text-sm text-gray-500">
-            Page {page} of {totalPages}
-          </span>
+          <span className="text-sm text-gray-500">Page {page} of {totalPages}</span>
           <button
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page >= totalPages || loadingPage}
