@@ -1,12 +1,20 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+const positiveNumberString = (label: string) =>
+  z
+    .string()
+    .min(1, `${label} is required`)
+    .refine((val) => !isNaN(Number(val)), `${label} must be a valid number`)
+    .refine((val) => Number(val) >= 0, `${label} cannot be negative`)
+    .refine((val) => Number(val) <= 1000000, `${label} is unreasonably large`);
+
 const lineItemSchema = z.object({
   description: z.string().min(1, "Description is required").max(300),
-  quantity: z.string().min(1, "Quantity is required"),
-  unitPrice: z.string().min(1, "Unit price is required"),
+  quantity: positiveNumberString("Quantity"),
+  unitPrice: positiveNumberString("Unit price"),
 });
 
 const invoiceSchema = z.object({
