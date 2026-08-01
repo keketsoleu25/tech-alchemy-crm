@@ -72,15 +72,11 @@ Many small businesses rely on multiple disconnected tools to manage daily operat
 
 Typical workflow:
 
-• Excel for clients
-
-• WhatsApp for communication
-
-• Trello for tasks
-
-• Word for invoices
-
-• Email for updates
+• Excel for clients  
+• WhatsApp for communication  
+• Trello for tasks  
+• Word for invoices  
+• Email for updates  
 
 Managing information across several platforms becomes inefficient as businesses grow.
 
@@ -91,181 +87,139 @@ Tech Alchemy CRM consolidates these workflows into a single application.
 # ✨ Core Features
 
 ## Authentication
-
 - Secure user registration
 - Secure login
-- Password hashing
-- Session management
+- Password hashing (bcrypt)
+- Session management (NextAuth)
 - Protected routes
-
----
+- Password reset flow
+- Email verification support
 
 ## Dashboard
-
 - Business overview
 - Project statistics
 - Client statistics
 - Revenue overview
 - Quick actions
 
----
-
 ## Client Management
-
-- Create clients
-- Edit clients
-- Delete clients
-- Client profiles
-- Contact information
+- Create, edit, and delete clients
+- Client profiles with contact information
 - Search functionality
-
----
+- Linked to projects and invoices
 
 ## Project Management
-
-- Create projects
-- Assign clients
-- Track project status
-- Monitor progress
-- Organize work
-
----
+- Create projects and assign clients
+- Track project status (Planning, Active, On Hold, Completed, Cancelled)
+- Budget and date tracking
+- Organize work across clients
 
 ## Task Management
-
-- Create tasks
-- Update task status
-- Due dates
-- Priorities
-- Progress tracking
-
----
+- Create and update tasks
+- Status (To Do, In Progress, Done)
+- Priorities (Low, Medium, High)
+- Due dates and progress tracking
+- Linked to projects
 
 ## Invoice Management
+- Create invoices with line items
+- Tax calculation
+- Track status (Draft, Sent, Paid, Overdue, Cancelled)
+- Client and project linking
+- Server-side PDF generation
 
-- Create invoices
-- Track invoice status
-- Due dates
-- Client billing
-- PDF generation
-
----
+## Notifications
+- In-app notification system
+- Linked to tasks, invoices, projects, and leads
 
 ## Email Integration
-
-- Email notifications
-- Business communication
-- Resend integration
+- Transactional email via Resend
+- Password reset and verification emails
 
 ---
 
 # 📸 Screenshots
 
 ## Dashboard
-
 > Add screenshot here
-
----
 
 ## Client Management
-
 > Add screenshot here
-
----
 
 ## Projects
-
 > Add screenshot here
-
----
 
 ## Invoices
-
 > Add screenshot here
 
----
-
 ## Authentication
-
 > Add screenshot here
 
 ---
 
 # 🛠 Technology Stack
 
-| Category | Technology |
-|------------|------------|
-| Framework | Next.js App Router |
-| Language | TypeScript |
-| Database | PostgreSQL |
-| ORM | Prisma |
-| Authentication | NextAuth |
-| Validation | Zod |
-| Forms | React Hook Form |
-| Styling | Tailwind CSS |
-| Icons | Lucide React |
-| Password Security | bcrypt |
-| Email | Resend |
-| PDF Generation | jsPDF |
-| Deployment | Vercel |
+| Category          | Technology           |
+|-------------------|----------------------|
+| Framework         | Next.js (App Router) |
+| Language          | TypeScript           |
+| Database          | PostgreSQL           |
+| ORM               | Prisma               |
+| Authentication    | NextAuth (Auth.js)   |
+| Validation        | Zod                  |
+| Styling           | Tailwind CSS         |
+| Icons             | Lucide React         |
+| Password Security | bcryptjs             |
+| Email             | Resend               |
+| PDF Generation    | pdfkit               |
+| Deployment        | Vercel               |
 
 ---
 
 # 💡 Why These Technologies?
 
 ## Next.js
-
-Provides server-side rendering, server components, API routes and excellent performance while supporting modern React development.
-
----
+Provides server-side rendering, React Server Components, API routes, and excellent performance while supporting modern React development.
 
 ## TypeScript
-
 Improves maintainability through static typing and catches many development errors before runtime.
 
----
-
 ## Prisma ORM
-
-Prisma provides a type-safe interface for interacting with PostgreSQL while simplifying database migrations and schema management.
-
----
+Provides a type-safe interface for interacting with PostgreSQL while simplifying database migrations and schema management.
 
 ## PostgreSQL
-
 A powerful relational database suitable for business applications requiring reliable data integrity and complex relationships.
 
----
-
 ## NextAuth
-
 Chosen to implement secure authentication with session management and protected application routes.
 
----
-
 ## Tailwind CSS
-
 Enables rapid UI development while maintaining consistency across the application.
 
+## pdfkit
+Server-side PDF generation for professional invoice downloads without client-side dependencies.
+
 ---
 
-# 🚧 Current Development Status
+# ✅ Current Development Status
 
-| Module | Status |
-|---------|--------|
-| Authentication | ✅ Complete |
-| Dashboard | ✅ Complete |
-| Client Management | 🚧 In Progress |
-| Project Management | 🚧 In Progress |
-| Task Management | 🚧 In Progress |
-| Invoice System | 🚧 In Progress |
-| Email Integration | 🚧 In Progress |
-| Client Portal | 📅 Planned |
-| Reporting | 📅 Planned |
-| AI Features | 📅 Planned |
+| Module                | Status       |
+|-----------------------|--------------|
+| Authentication        | ✅ Complete  |
+| Dashboard             | ✅ Complete  |
+| Client Management     | ✅ Complete  |
+| Project Management    | ✅ Complete  |
+| Task Management       | ✅ Complete  |
+| Invoice System        | ✅ Complete  |
+| PDF Generation        | ✅ Complete  |
+| Notifications         | ✅ Complete  |
+| Email Integration     | 🚧 In Progress |
+| Client Portal         | 📅 Planned   |
+| Reporting / Analytics | 📅 Planned   |
+| AI Features           | 📅 Planned   |
 
 ---
 
 # 📈 Project Vision
 
-Tech Alchemy CRM aims to evolve into a comprehensive business operating system where organizations can manage every aspect of client relationships, project delivery and business operations through a single modern platform.
+Tech Alchemy CRM aims to evolve into a comprehensive business operating system where organizations can manage every aspect of client relationships, project delivery, and business operations through a single modern platform.
