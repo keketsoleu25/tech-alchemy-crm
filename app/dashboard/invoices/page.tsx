@@ -1,7 +1,9 @@
-import { redirect } from "next/navigation";
+﻿import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import InvoicesManager from "@/components/invoices-manager";
+
+const PAGE_SIZE = 10;
 
 export default async function InvoicesPage() {
   const session = await auth();
@@ -10,7 +12,7 @@ export default async function InvoicesPage() {
     redirect("/login");
   }
 
-  const [invoices, clients, projects] = await Promise.all([
+  const [invoices, total, clients, projects] = await Promise.all([
     prisma.invoice.findMany({
       where: { userId: session.user.id },
       include: {
@@ -19,7 +21,9 @@ export default async function InvoicesPage() {
         lineItems: true,
       },
       orderBy: { createdAt: "desc" },
+      take: PAGE_SIZE,
     }),
+    prisma.invoice.count({ where: { userId: session.user.id } }),
     prisma.client.findMany({
       where: { userId: session.user.id },
       select: { id: true, name: true },
@@ -58,6 +62,8 @@ export default async function InvoicesPage() {
 
         <InvoicesManager
           initialInvoices={serializedInvoices}
+          initialTotal={total}
+          pageSize={PAGE_SIZE}
           clients={clients}
           projects={projects}
         />

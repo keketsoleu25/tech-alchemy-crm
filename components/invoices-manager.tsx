@@ -1,6 +1,6 @@
-"use client";
+﻿"use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
 type InvoiceStatus = "DRAFT" | "SENT" | "PAID" | "OVERDUE" | "CANCELLED";
@@ -90,27 +90,60 @@ function calcTotals(lineItems: LineItem[], taxRate: string) {
 }
 
 function formatDate(value: string | null) {
-  if (!value) return "—";
+  if (!value) return "-";
   return new Date(value).toLocaleDateString();
 }
 
 export default function InvoicesManager({
   initialInvoices,
+  initialTotal,
+  pageSize,
   clients,
   projects,
 }: {
   initialInvoices: Invoice[];
+  initialTotal: number;
+  pageSize: number;
   clients: ClientOption[];
   projects: ProjectOption[];
 }) {
   const router = useRouter();
   const [invoices, setInvoices] = useState<Invoice[]>(initialInvoices);
+  const [total, setTotal] = useState(initialTotal);
+  const [page, setPage] = useState(1);
+  const [loadingPage, setLoadingPage] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+
+  const loadPage = useCallback(async (targetPage: number) => {
+    setLoadingPage(true);
+    try {
+      const res = await fetch(`/api/invoices?page=${targetPage}`);
+      const data = await res.json();
+      if (res.ok) {
+        setInvoices(data.invoices);
+        setTotal(data.total);
+        setPage(data.page);
+      }
+    } catch {
+      // Keep current view if refetch fails
+    } finally {
+      setLoadingPage(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (page !== 1) {
+      loadPage(page);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
   function startCreate() {
     setEditingId(null);
@@ -193,15 +226,20 @@ export default function InvoicesManager({
         return;
       }
 
+      cancelForm();
+
       if (editingId) {
         setInvoices((prev) =>
           prev.map((inv) => (inv.id === editingId ? data.invoice : inv))
         );
       } else {
-        setInvoices((prev) => [data.invoice, ...prev]);
+        if (page === 1) {
+          await loadPage(1);
+        } else {
+          setPage(1);
+        }
       }
 
-      cancelForm();
       router.refresh();
     } catch {
       setError("Network error. Please try again.");
@@ -221,7 +259,10 @@ export default function InvoicesManager({
         alert(data.error || "Failed to delete invoice");
         return;
       }
-      setInvoices((prev) => prev.filter((inv) => inv.id !== id));
+
+      const remainingOnPage = invoices.length - 1;
+      const targetPage = remainingOnPage === 0 && page > 1 ? page - 1 : page;
+      await loadPage(targetPage);
       router.refresh();
     } catch {
       alert("Network error. Please try again.");
@@ -236,7 +277,7 @@ export default function InvoicesManager({
     <div>
       <div className="flex items-center justify-between mb-6">
         <p className="text-sm text-gray-400">
-          {invoices.length} {invoices.length === 1 ? "invoice" : "invoices"}
+          {total} {total === 1 ? "invoice" : "invoices"}
         </p>
         {!showForm && (
           <button
@@ -438,7 +479,7 @@ export default function InvoicesManager({
                       disabled={form.lineItems.length === 1}
                       className="col-span-1 text-red-400 hover:text-red-300 text-sm disabled:opacity-30"
                     >
-                      ✕
+                      x
                     </button>
                   </div>
                 );
@@ -501,7 +542,11 @@ export default function InvoicesManager({
           </p>
         </div>
       ) : (
-        <div className="rounded-lg border border-gray-800 bg-gray-950 overflow-hidden">
+        <div
+          className={`rounded-lg border border-gray-800 bg-gray-950 overflow-hidden ${
+            loadingPage ? "opacity-50" : ""
+          }`}
+        >
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-800 text-left text-gray-400">
@@ -528,7 +573,7 @@ export default function InvoicesManager({
                       {invoice.invoiceNumber}
                     </td>
                     <td className="px-4 py-3 text-gray-300">
-                      {invoice.client?.name || "—"}
+                      {invoice.client?.name || "-"}
                     </td>
                     <td className="px-4 py-3">
                       <span
@@ -544,7 +589,7 @@ export default function InvoicesManager({
                       {formatDate(invoice.dueDate)}
                     </td>
                     <td className="px-4 py-3 text-right space-x-3 whitespace-nowrap">
-                      <a
+                      
                         href={`/api/invoices/${invoice.id}/pdf`}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -572,6 +617,28 @@ export default function InvoicesManager({
               })}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between mt-4">
+          <button
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page <= 1 || loadingPage}
+            className="rounded-md border border-gray-700 px-3 py-1.5 text-sm text-gray-300 hover:bg-gray-900 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            Previous
+          </button>
+          <span className="text-sm text-gray-500">
+            Page {page} of {totalPages}
+          </span>
+          <button
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={page >= totalPages || loadingPage}
+            className="rounded-md border border-gray-700 px-3 py-1.5 text-sm text-gray-300 hover:bg-gray-900 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            Next
+          </button>
         </div>
       )}
     </div>

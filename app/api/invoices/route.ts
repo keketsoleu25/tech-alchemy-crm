@@ -4,6 +4,8 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/rate-limit";
 
+const PAGE_SIZE = 10;
+
 const positiveNumberString = (label: string) =>
   z
     .string()
@@ -37,23 +39,37 @@ function generateInvoiceNumber(): string {
   return `INV-${ts}-${rand}`;
 }
 
-export async function GET() {
+export async function GET(req: Request) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const invoices = await prisma.invoice.findMany({
-    where: { userId: session.user.id },
-    include: {
-      client: { select: { id: true, name: true } },
-      project: { select: { id: true, name: true } },
-      lineItems: true,
-    },
-    orderBy: { createdAt: "desc" },
-  });
+  const { searchParams } = new URL(req.url);
+  const page = Math.max(1, parseInt(searchParams.get("page") ?? "1", 10) || 1);
 
-  return NextResponse.json({ invoices });
+  const [invoices, total] = await Promise.all([
+    prisma.invoice.findMany({
+      where: { userId: session.user.id },
+      include: {
+        client: { select: { id: true, name: true } },
+        project: { select: { id: true, name: true } },
+        lineItems: true,
+      },
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
+    }),
+    prisma.invoice.count({ where: { userId: session.user.id } }),
+  ]);
+
+  return NextResponse.json({
+    invoices,
+    page,
+    pageSize: PAGE_SIZE,
+    total,
+    totalPages: Math.max(1, Math.ceil(total / PAGE_SIZE)),
+  });
 }
 
 export async function POST(req: Request) {
