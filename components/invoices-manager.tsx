@@ -544,6 +544,15 @@ export default function InvoicesManager({
                       {formatDate(invoice.dueDate)}
                     </td>
                     <td className="px-4 py-3 text-right space-x-3 whitespace-nowrap">
+                      <a
+                        href={`/api/invoices/${invoice.id}/pdf`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-gray-300 hover:text-white text-sm"
+                      >
+                        PDF
+                      </a>
+
                       <button
                         onClick={() => startEdit(invoice)}
                         className="text-gray-300 hover:text-white text-sm"
