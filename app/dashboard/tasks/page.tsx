@@ -3,6 +3,8 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import TasksManager from "@/components/tasks-manager";
 
+const PAGE_SIZE = 10;
+
 export default async function TasksPage() {
   const session = await auth();
 
@@ -10,12 +12,14 @@ export default async function TasksPage() {
     redirect("/login");
   }
 
-  const [tasks, projects] = await Promise.all([
+  const [tasks, total, projects] = await Promise.all([
     prisma.task.findMany({
       where: { userId: session.user.id },
       include: { project: { select: { id: true, name: true } } },
       orderBy: { createdAt: "desc" },
+      take: PAGE_SIZE,
     }),
+    prisma.task.count({ where: { userId: session.user.id } }),
     prisma.project.findMany({
       where: { userId: session.user.id },
       select: { id: true, name: true },
@@ -39,7 +43,12 @@ export default async function TasksPage() {
           Keep track of what needs to get done on each project.
         </p>
 
-        <TasksManager initialTasks={serializedTasks} projects={projects} />
+        <TasksManager
+          initialTasks={serializedTasks}
+          initialTotal={total}
+          pageSize={PAGE_SIZE}
+          projects={projects}
+        />
       </div>
     </div>
   );

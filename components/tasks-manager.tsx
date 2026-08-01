@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
 type TaskStatus = "TODO" | "IN_PROGRESS" | "DONE";
@@ -68,19 +68,52 @@ function formatDate(value: string | null) {
 
 export default function TasksManager({
   initialTasks,
+  initialTotal,
+  pageSize,
   projects,
 }: {
   initialTasks: Task[];
+  initialTotal: number;
+  pageSize: number;
   projects: ProjectOption[];
 }) {
   const router = useRouter();
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
+  const [total, setTotal] = useState(initialTotal);
+  const [page, setPage] = useState(1);
+  const [loadingPage, setLoadingPage] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+
+  const loadPage = useCallback(async (targetPage: number) => {
+    setLoadingPage(true);
+    try {
+      const res = await fetch(`/api/tasks?page=${targetPage}`);
+      const data = await res.json();
+      if (res.ok) {
+        setTasks(data.tasks);
+        setTotal(data.total);
+        setPage(data.page);
+      }
+    } catch {
+      // Keep current view if refetch fails
+    } finally {
+      setLoadingPage(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (page !== 1) {
+      loadPage(page);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
   function startCreate() {
     setEditingId(null);
@@ -139,15 +172,20 @@ export default function TasksManager({
         return;
       }
 
+      cancelForm();
+
       if (editingId) {
         setTasks((prev) =>
           prev.map((t) => (t.id === editingId ? data.task : t))
         );
       } else {
-        setTasks((prev) => [data.task, ...prev]);
+        if (page === 1) {
+          await loadPage(1);
+        } else {
+          setPage(1);
+        }
       }
 
-      cancelForm();
       router.refresh();
     } catch {
       setError("Network error. Please try again.");
@@ -167,7 +205,10 @@ export default function TasksManager({
         alert(data.error || "Failed to delete task");
         return;
       }
-      setTasks((prev) => prev.filter((t) => t.id !== id));
+
+      const remainingOnPage = tasks.length - 1;
+      const targetPage = remainingOnPage === 0 && page > 1 ? page - 1 : page;
+      await loadPage(targetPage);
       router.refresh();
     } catch {
       alert("Network error. Please try again.");
@@ -180,7 +221,7 @@ export default function TasksManager({
     <div>
       <div className="flex items-center justify-between mb-6">
         <p className="text-sm text-gray-400">
-          {tasks.length} {tasks.length === 1 ? "task" : "tasks"}
+          {total} {total === 1 ? "task" : "tasks"}
         </p>
         {!showForm && (
           <button
@@ -352,7 +393,11 @@ export default function TasksManager({
           </p>
         </div>
       ) : (
-        <div className="rounded-lg border border-gray-800 bg-gray-950 overflow-hidden">
+        <div
+          className={`rounded-lg border border-gray-800 bg-gray-950 overflow-hidden ${
+            loadingPage ? "opacity-50" : ""
+          }`}
+        >
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-800 text-left text-gray-400">
@@ -410,6 +455,28 @@ export default function TasksManager({
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between mt-4">
+          <button
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page <= 1 || loadingPage}
+            className="rounded-md border border-gray-700 px-3 py-1.5 text-sm text-gray-300 hover:bg-gray-900 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            Previous
+          </button>
+          <span className="text-sm text-gray-500">
+            Page {page} of {totalPages}
+          </span>
+          <button
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={page >= totalPages || loadingPage}
+            className="rounded-md border border-gray-700 px-3 py-1.5 text-sm text-gray-300 hover:bg-gray-900 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            Next
+          </button>
         </div>
       )}
     </div>

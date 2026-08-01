@@ -4,6 +4,8 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/rate-limit";
 
+const PAGE_SIZE = 10;
+
 const taskSchema = z.object({
   title: z.string().min(1, "Title is required").max(150),
   description: z.string().max(2000).optional().or(z.literal("")),
@@ -21,17 +23,37 @@ export async function GET(req: Request) {
 
   const { searchParams } = new URL(req.url);
   const projectId = searchParams.get("projectId");
+  const countOnly = searchParams.get("countOnly");
+  const page = Math.max(1, parseInt(searchParams.get("page") ?? "1", 10) || 1);
 
-  const tasks = await prisma.task.findMany({
-    where: {
-      userId: session.user.id,
-      ...(projectId ? { projectId } : {}),
-    },
-    include: { project: { select: { id: true, name: true } } },
-    orderBy: { createdAt: "desc" },
+  const where = {
+    userId: session.user.id,
+    ...(projectId ? { projectId } : {}),
+  };
+
+  if (countOnly === "true") {
+    const total = await prisma.task.count({ where });
+    return NextResponse.json({ total });
+  }
+
+  const [tasks, total] = await Promise.all([
+    prisma.task.findMany({
+      where,
+      include: { project: { select: { id: true, name: true } } },
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
+    }),
+    prisma.task.count({ where }),
+  ]);
+
+  return NextResponse.json({
+    tasks,
+    page,
+    pageSize: PAGE_SIZE,
+    total,
+    totalPages: Math.max(1, Math.ceil(total / PAGE_SIZE)),
   });
-
-  return NextResponse.json({ tasks });
 }
 
 export async function POST(req: Request) {

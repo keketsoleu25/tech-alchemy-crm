@@ -193,10 +193,10 @@ export default function ProjectsManager({
 
     let taskCount = 0;
     try {
-      const res = await fetch(`/api/tasks?projectId=${id}`);
+      const res = await fetch(`/api/tasks?projectId=${id}&countOnly=true`);
       if (res.ok) {
         const data = await res.json();
-        taskCount = Array.isArray(data.tasks) ? data.tasks.length : 0;
+        taskCount = typeof data.total === "number" ? data.total : 0;
       }
     } catch {
       // If the count check fails, fall through to a generic warning below.
