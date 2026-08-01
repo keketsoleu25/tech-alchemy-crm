@@ -5,6 +5,7 @@ import Google from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { prisma } from "./prisma";
+import { rateLimit } from "./rate-limit";
 
 const credentialsSchema = z.object({
   email: z.string().email(),
@@ -37,6 +38,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!parsed.success) return null;
 
         const { email, password } = parsed.data;
+
+        const { success } = rateLimit(
+          `login:${email.toLowerCase()}`,
+          5,
+          15 * 60 * 1000
+        );
+        if (!success) return null;
 
         const user = await prisma.user.findUnique({
           where: { email },

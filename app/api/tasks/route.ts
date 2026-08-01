@@ -2,6 +2,7 @@
 import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { rateLimit } from "@/lib/rate-limit";
 
 const taskSchema = z.object({
   title: z.string().min(1, "Title is required").max(150),
@@ -37,6 +38,18 @@ export async function POST(req: Request) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { success } = rateLimit(
+    `create-task:${session.user.id}`,
+    30,
+    15 * 60 * 1000
+  );
+  if (!success) {
+    return NextResponse.json(
+      { error: "Too many requests. Please slow down and try again shortly." },
+      { status: 429 }
+    );
   }
 
   try {
