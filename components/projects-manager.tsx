@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
 type ProjectStatus =
@@ -67,19 +67,52 @@ function formatDate(value: string | null) {
 
 export default function ProjectsManager({
   initialProjects,
+  initialTotal,
+  pageSize,
   clients,
 }: {
   initialProjects: Project[];
+  initialTotal: number;
+  pageSize: number;
   clients: ClientOption[];
 }) {
   const router = useRouter();
   const [projects, setProjects] = useState<Project[]>(initialProjects);
+  const [total, setTotal] = useState(initialTotal);
+  const [page, setPage] = useState(1);
+  const [loadingPage, setLoadingPage] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+
+  const loadPage = useCallback(async (targetPage: number) => {
+    setLoadingPage(true);
+    try {
+      const res = await fetch(`/api/projects?page=${targetPage}`);
+      const data = await res.json();
+      if (res.ok) {
+        setProjects(data.projects);
+        setTotal(data.total);
+        setPage(data.page);
+      }
+    } catch {
+      // Keep current view if refetch fails
+    } finally {
+      setLoadingPage(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (page !== 1) {
+      loadPage(page);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
   function startCreate() {
     setEditingId(null);
@@ -133,15 +166,20 @@ export default function ProjectsManager({
         return;
       }
 
+      cancelForm();
+
       if (editingId) {
         setProjects((prev) =>
           prev.map((p) => (p.id === editingId ? data.project : p))
         );
       } else {
-        setProjects((prev) => [data.project, ...prev]);
+        if (page === 1) {
+          await loadPage(1);
+        } else {
+          setPage(1);
+        }
       }
 
-      cancelForm();
       router.refresh();
     } catch {
       setError("Network error. Please try again.");
@@ -185,7 +223,10 @@ export default function ProjectsManager({
         alert(data.error || "Failed to delete project");
         return;
       }
-      setProjects((prev) => prev.filter((p) => p.id !== id));
+
+      const remainingOnPage = projects.length - 1;
+      const targetPage = remainingOnPage === 0 && page > 1 ? page - 1 : page;
+      await loadPage(targetPage);
       router.refresh();
     } catch {
       alert("Network error. Please try again.");
@@ -194,13 +235,11 @@ export default function ProjectsManager({
     }
   }
 
-  const formTotalsIgnore = null; // placeholder to keep diff minimal
-
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <p className="text-sm text-gray-400">
-          {projects.length} {projects.length === 1 ? "project" : "projects"}
+          {total} {total === 1 ? "project" : "projects"}
         </p>
         {!showForm && (
           <button
@@ -370,7 +409,11 @@ export default function ProjectsManager({
           </p>
         </div>
       ) : (
-        <div className="rounded-lg border border-gray-800 bg-gray-950 overflow-hidden">
+        <div
+          className={`rounded-lg border border-gray-800 bg-gray-950 overflow-hidden ${
+            loadingPage ? "opacity-50" : ""
+          }`}
+        >
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-800 text-left text-gray-400">
@@ -432,6 +475,28 @@ export default function ProjectsManager({
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between mt-4">
+          <button
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page <= 1 || loadingPage}
+            className="rounded-md border border-gray-700 px-3 py-1.5 text-sm text-gray-300 hover:bg-gray-900 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            Previous
+          </button>
+          <span className="text-sm text-gray-500">
+            Page {page} of {totalPages}
+          </span>
+          <button
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={page >= totalPages || loadingPage}
+            className="rounded-md border border-gray-700 px-3 py-1.5 text-sm text-gray-300 hover:bg-gray-900 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            Next
+          </button>
         </div>
       )}
     </div>

@@ -3,6 +3,8 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import ProjectsManager from "@/components/projects-manager";
 
+const PAGE_SIZE = 10;
+
 export default async function ProjectsPage() {
   const session = await auth();
 
@@ -10,12 +12,14 @@ export default async function ProjectsPage() {
     redirect("/login");
   }
 
-  const [projects, clients] = await Promise.all([
+  const [projects, total, clients] = await Promise.all([
     prisma.project.findMany({
       where: { userId: session.user.id },
       include: { client: { select: { id: true, name: true } } },
       orderBy: { createdAt: "desc" },
+      take: PAGE_SIZE,
     }),
+    prisma.project.count({ where: { userId: session.user.id } }),
     prisma.client.findMany({
       where: { userId: session.user.id },
       select: { id: true, name: true },
@@ -43,6 +47,8 @@ export default async function ProjectsPage() {
 
         <ProjectsManager
           initialProjects={serializedProjects}
+          initialTotal={total}
+          pageSize={PAGE_SIZE}
           clients={clients}
         />
       </div>
