@@ -150,10 +150,34 @@ export default function ProjectsManager({
     }
   }
 
-  async function handleDelete(id: string) {
-    if (!confirm("Delete this project? This cannot be undone.")) return;
-
+  async function handleDelete(id: string, name: string) {
     setDeletingId(id);
+
+    let taskCount = 0;
+    try {
+      const res = await fetch(`/api/tasks?projectId=${id}`);
+      if (res.ok) {
+        const data = await res.json();
+        taskCount = Array.isArray(data.tasks) ? data.tasks.length : 0;
+      }
+    } catch {
+      // If the count check fails, fall through to a generic warning below.
+    }
+
+    const warning =
+      taskCount > 0
+        ? `"${name}" has ${taskCount} task${
+            taskCount === 1 ? "" : "s"
+          } attached. Deleting this project will permanently delete ${
+            taskCount === 1 ? "that task" : "all of those tasks"
+          } too. This cannot be undone.`
+        : `Delete "${name}"? This cannot be undone.`;
+
+    if (!confirm(warning)) {
+      setDeletingId(null);
+      return;
+    }
+
     try {
       const res = await fetch(`/api/projects/${id}`, { method: "DELETE" });
       if (!res.ok) {
@@ -169,6 +193,8 @@ export default function ProjectsManager({
       setDeletingId(null);
     }
   }
+
+  const formTotalsIgnore = null; // placeholder to keep diff minimal
 
   return (
     <div>
@@ -395,7 +421,7 @@ export default function ProjectsManager({
                       Edit
                     </button>
                     <button
-                      onClick={() => handleDelete(project.id)}
+                      onClick={() => handleDelete(project.id, project.name)}
                       disabled={deletingId === project.id}
                       className="text-red-400 hover:text-red-300 text-sm disabled:opacity-50"
                     >
