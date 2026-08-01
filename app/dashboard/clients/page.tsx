@@ -3,6 +3,8 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import ClientsManager from "@/components/clients-manager";
 
+const PAGE_SIZE = 10;
+
 export default async function ClientsPage() {
   const session = await auth();
 
@@ -10,10 +12,14 @@ export default async function ClientsPage() {
     redirect("/login");
   }
 
-  const clients = await prisma.client.findMany({
-    where: { userId: session.user.id },
-    orderBy: { createdAt: "desc" },
-  });
+  const [clients, total] = await Promise.all([
+    prisma.client.findMany({
+      where: { userId: session.user.id },
+      orderBy: { createdAt: "desc" },
+      take: PAGE_SIZE,
+    }),
+    prisma.client.count({ where: { userId: session.user.id } }),
+  ]);
 
   const serializedClients = clients.map((client) => ({
     ...client,
@@ -32,7 +38,11 @@ export default async function ClientsPage() {
           Manage the people and companies you work with.
         </p>
 
-        <ClientsManager initialClients={serializedClients} />
+        <ClientsManager
+          initialClients={serializedClients}
+          initialTotal={total}
+          pageSize={PAGE_SIZE}
+        />
       </div>
     </div>
   );

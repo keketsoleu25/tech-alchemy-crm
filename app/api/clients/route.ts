@@ -4,6 +4,8 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/rate-limit";
 
+const PAGE_SIZE = 10;
+
 const clientSchema = z.object({
   name: z.string().min(1, "Name is required").max(100),
   email: z.string().email().optional().or(z.literal("")),
@@ -12,18 +14,32 @@ const clientSchema = z.object({
   notes: z.string().max(2000).optional().or(z.literal("")),
 });
 
-export async function GET() {
+export async function GET(req: Request) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const clients = await prisma.client.findMany({
-    where: { userId: session.user.id },
-    orderBy: { createdAt: "desc" },
-  });
+  const { searchParams } = new URL(req.url);
+  const page = Math.max(1, parseInt(searchParams.get("page") ?? "1", 10) || 1);
 
-  return NextResponse.json({ clients });
+  const [clients, total] = await Promise.all([
+    prisma.client.findMany({
+      where: { userId: session.user.id },
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
+    }),
+    prisma.client.count({ where: { userId: session.user.id } }),
+  ]);
+
+  return NextResponse.json({
+    clients,
+    page,
+    pageSize: PAGE_SIZE,
+    total,
+    totalPages: Math.max(1, Math.ceil(total / PAGE_SIZE)),
+  });
 }
 
 export async function POST(req: Request) {
