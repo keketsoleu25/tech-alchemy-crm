@@ -135,7 +135,7 @@ npm run dev
 
 ## License
 
-Private project. All rights reserved.
+Copyright (c) 2026 Keketso Leu. All rights reserved. See [LICENSE](./LICENSE) for terms — portfolio review only, no reuse without written permission.
 
 ---
 
@@ -741,5 +741,6 @@ Tech Alchemy CRM is being built as both a practical business product and a demon
 
 </div>
 >>>>>>> 121e79912a5d3509745ec386ff6b8ee67473e805
+
 
 

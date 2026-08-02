@@ -155,11 +155,19 @@ export default function LandingPage() {
       </section>
 
       <footer className="border-t border-gray-900">
-        <div className="max-w-5xl mx-auto px-6 py-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-gray-600 font-mono">
-          <span>© {year} Tech Alchemy CRM. All rights reserved.</span>
-          <span>Built by Keketso Leu · Powered by The Alchemy Lab</span>
+        <div className="max-w-5xl mx-auto px-6 py-8 space-y-2">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-gray-600 font-mono">
+            <span>© {year} Keketso Leu. All rights reserved.</span>
+            <span>Built by Keketso Leu · Powered by The Alchemy Lab</span>
+          </div>
+          <p className="text-xs text-gray-700 max-w-2xl">
+            This source code is available for portfolio review only. No
+            permission is granted to copy, modify, distribute, sublicense, or
+            use it commercially without written permission.
+          </p>
         </div>
       </footer>
     </div>
   );
 }
+
