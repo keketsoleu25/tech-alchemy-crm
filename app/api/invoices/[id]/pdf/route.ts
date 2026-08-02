@@ -193,7 +193,7 @@ export async function GET(_req: Request, { params }: RouteParams) {
 
   const pdfBuffer = await pdfPromise;
 
-  return new NextResponse(pdfBuffer, {
+  return new NextResponse(new Uint8Array(pdfBuffer), {
     status: 200,
     headers: {
       "Content-Type": "application/pdf",
@@ -202,3 +202,4 @@ export async function GET(_req: Request, { params }: RouteParams) {
     },
   });
 }
+
