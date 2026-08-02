@@ -152,7 +152,7 @@ A full-stack customer relationship and business operations platform for freelanc
 [![Prisma](https://img.shields.io/badge/Prisma-7.9.1-2D3748?style=for-the-badge&logo=prisma&logoColor=white)](https://www.prisma.io/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 
-[Repository](https://github.com/keketsoleu25/tech-alchemy-crm) Â· [Report a bug](https://github.com/keketsoleu25/tech-alchemy-crm/issues) Â· Live demo coming soon
+[Repository](https://github.com/keketsoleu25/tech-alchemy-crm) Â· [Report a bug](https://github.com/keketsoleu25/tech-alchemy-crm/issues) Â· [Live demo](https://tech-alchemy-crm.vercel.app)
 
 **Status:** Active development â€” core CRM workflow implemented
 
@@ -741,4 +741,5 @@ Tech Alchemy CRM is being built as both a practical business product and a demon
 
 </div>
 >>>>>>> 121e79912a5d3509745ec386ff6b8ee67473e805
+
 
