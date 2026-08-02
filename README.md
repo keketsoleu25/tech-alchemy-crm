@@ -1,146 +1,7 @@
-﻿<<<<<<< HEAD
-ï»¿# Tech Alchemy CRM
-=======
 # Tech Alchemy CRM
->>>>>>> 121e79912a5d3509745ec386ff6b8ee67473e805
 
-Modern CRM and business management platform built with Next.js, TypeScript, Prisma, and PostgreSQL.
+<div align="center">
 
-<<<<<<< HEAD
-Built for freelancers, agencies, and small businesses to manage clients, projects, tasks, and invoices from a single platform instead of juggling spreadsheets, Trello boards, and Word documents.
-
----
-
-## Overview
-
-Tech Alchemy CRM centralizes the full client lifecycle â€” from first contact through project delivery to final invoice â€” into one authenticated, role-aware application. It was built as a full-stack engineering exercise, with a deliberate focus on production-readiness: server-side authorization on every route, input validation, rate limiting, pagination, and tested (not just written) functionality at every step.
-
-## Features
-
-**Authentication**
-- Email/password registration with bcrypt hashing and a defensive check against invalid password hashes
-- Google OAuth sign-in
-- Login rate limiting (5 attempts per 15 minutes per account)
-- Email verification and password reset flows via Resend
-- Role-based sessions (`USER` / `ADMIN`) via NextAuth v5 (Auth.js)
-
-**Dashboard**
-- Live stats pulled directly from the database: client count, active projects, open tasks, outstanding invoice total, unread notifications
-- Each stat links directly to its module
-
-**Clients**
-- Full CRUD, scoped per user
-- Server-side pagination
-
-**Projects**
-- Full CRUD, linked to Clients
-- Status tracking (Planning / Active / On Hold / Completed / Cancelled), budget, timeline
-- Deleting a project checks its task count first and warns explicitly before cascading the deletion
-- Server-side pagination
-
-**Tasks**
-- Full CRUD, linked to Projects
-- Status (To do / In progress / Done) and priority (Low / Medium / High)
-- Server-side pagination
-
-**Invoices**
-- Full CRUD with dynamic, multi-row line items
-- Live subtotal / tax / total calculation
-- Server-side numeric validation (rejects negative or invalid quantities and prices)
-- Auto-generated invoice numbers
-- PDF export (PDFKit)
-- Server-side pagination
-
-**Notifications**
-- Soft-delete pattern (nothing is ever hard-deleted, just marked)
-- Mark read / unread, filter by unread
-
-**Admin panel**
-- Role-gated (`ADMIN` only, server-enforced)
-- View all users, promote/demote roles
-- A user cannot change their own role (enforced server-side)
-
-**Security**
-- Every API route checks the session and scopes every query to `userId` â€” no data is reachable across accounts
-- Zod validation on every write endpoint
-- Rate limiting on login and all create endpoints
-- Secrets rotated and never committed (`.env` is gitignored)
-
-## Tech Stack
-
-| Category | Technology |
-|---|---|
-| Framework | Next.js (App Router, Turbopack) |
-| Language | TypeScript |
-| Database | PostgreSQL (Neon, serverless) |
-| ORM | Prisma |
-| Authentication | NextAuth v5 (Auth.js) |
-| Validation | Zod |
-| Styling | Tailwind CSS |
-| Password hashing | bcryptjs |
-| Email | Resend |
-| PDF generation | PDFKit |
-
-## Project Status
-
-| Module | Status |
-|---|---|
-| Authentication | Complete |
-| Dashboard | Complete |
-| Client Management | Complete |
-| Project Management | Complete |
-| Task Management | Complete |
-| Invoice System | Complete |
-| PDF Export | Complete |
-| Notifications | Complete |
-| Admin Panel | Complete |
-| Pagination | Complete (all modules) |
-| Rate Limiting | Complete (login + create endpoints) |
-| Automated Tests | Not yet implemented |
-| Deployment | In progress |
-
-## Known Limitations
-
-Documented honestly rather than glossed over:
-
-- No automated test suite yet â€” all functionality has been manually verified in-browser through development
-- No file upload support (contracts, logos, attachments)
-- Notifications are created manually or triggered by specific actions, not yet wired to every business event (e.g. invoice overdue)
-- Uses Neon's free-tier serverless Postgres, which suspends after inactivity â€” the first request after idle time can be slow while the database wakes up
-
-## Getting Started
-
-```bash
-git clone https://github.com/keketsoleu25/tech-alchemy-crm.git
-cd tech-alchemy-crm
-npm install
-```
-
-Create a `.env` file with:
-
-```
-DATABASE_URL=
-AUTH_SECRET=
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
-RESEND_API_KEY=
-EMAIL_FROM=
-```
-
-```bash
-npx prisma generate
-npx prisma db push
-npm run dev
-```
-
-## License
-
-Private project. All rights reserved.
-
----
-
-Built by Keketso Leu Â· Powered by The Alchemy Lab
-=======
 ### Turn client chaos into finished, paid work.
 
 A full-stack customer relationship and business operations platform for freelancers, agencies, consultants, startups, NGOs, and small teams.
@@ -152,9 +13,9 @@ A full-stack customer relationship and business operations platform for freelanc
 [![Prisma](https://img.shields.io/badge/Prisma-7.9.1-2D3748?style=for-the-badge&logo=prisma&logoColor=white)](https://www.prisma.io/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 
-[Repository](https://github.com/keketsoleu25/tech-alchemy-crm) Â· [Report a bug](https://github.com/keketsoleu25/tech-alchemy-crm/issues) Â· [Live demo](https://tech-alchemy-crm.vercel.app)
+[Repository](https://github.com/keketsoleu25/tech-alchemy-crm) · [Report a bug](https://github.com/keketsoleu25/tech-alchemy-crm/issues) · [Live demo](https://tech-alchemy-crm.vercel.app)
 
-**Status:** Active development â€” core CRM workflow implemented
+**Status:** Live — core CRM workflow complete
 
 </div>
 
@@ -190,7 +51,7 @@ Tech Alchemy CRM is a production-style SaaS portfolio project that centralizes t
 
 The product is designed around a practical business pipeline:
 
-**Client â†’ Project â†’ Task â†’ Invoice â†’ Payment follow-up**
+**Client → Project → Task → Invoice → Payment follow-up**
 
 Instead of treating those records as unrelated lists, the database preserves the relationships between them. A project can belong to a client, a task belongs to a project, and an invoice can be connected to both a client and a project. This creates a usable history of the work performed for every customer.
 
@@ -509,12 +370,12 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 Useful local routes:
 
-- `/` â€” public landing page
-- `/register` â€” account creation
-- `/login` â€” credentials or Google sign-in
-- `/forgot-password` â€” password-recovery request
-- `/dashboard` â€” authenticated business overview
-- `/admin` â€” admin-only user management
+- `/` — public landing page
+- `/register` — account creation
+- `/login` — credentials or Google sign-in
+- `/forgot-password` — password-recovery request
+- `/dashboard` — authenticated business overview
+- `/admin` — admin-only user management
 
 ---
 
@@ -612,29 +473,29 @@ All business-resource endpoints require an authenticated session. Record-level h
 
 ```text
 tech-alchemy-crm/
-â”œâ”€â”€ app/
-â”‚   â”œâ”€â”€ (auth)/             # Login, registration, verification, and reset pages
-â”‚   â”œâ”€â”€ admin/              # Role-protected administration interface
-â”‚   â”œâ”€â”€ api/                # Auth and CRM route handlers
-â”‚   â”œâ”€â”€ dashboard/          # Authenticated CRM pages
-â”‚   â”œâ”€â”€ globals.css         # Global Tailwind styles
-â”‚   â”œâ”€â”€ layout.tsx          # Root layout and providers
-â”‚   â””â”€â”€ page.tsx            # Public landing page
-â”œâ”€â”€ components/             # Interactive forms, managers, navigation, and providers
-â”œâ”€â”€ lib/
-â”‚   â”œâ”€â”€ auth.ts             # Auth.js configuration and callbacks
-â”‚   â”œâ”€â”€ mail.ts             # Resend email workflows
-â”‚   â”œâ”€â”€ prisma.ts           # Prisma client and PostgreSQL adapter
-â”‚   â”œâ”€â”€ rate-limit.ts       # In-memory request limiter
-â”‚   â””â”€â”€ tokens.ts           # Cryptographically secure token helpers
-â”œâ”€â”€ prisma/
-â”‚   â”œâ”€â”€ migrations/         # Database migration history
-â”‚   â””â”€â”€ schema.prisma       # Relational application schema
-â”œâ”€â”€ middleware.ts           # Route protection and role-based redirects
-â”œâ”€â”€ next.config.ts          # Next.js and PDFKit server configuration
-â”œâ”€â”€ prisma.config.ts        # Prisma schema, migration, and datasource configuration
-â”œâ”€â”€ package.json            # Dependencies and npm scripts
-â””â”€â”€ tsconfig.json           # Strict TypeScript configuration
+├── app/
+│   ├── (auth)/             # Login, registration, verification, and reset pages
+│   ├── admin/              # Role-protected administration interface
+│   ├── api/                # Auth and CRM route handlers
+│   ├── dashboard/          # Authenticated CRM pages
+│   ├── globals.css         # Global Tailwind styles
+│   ├── layout.tsx          # Root layout and providers
+│   └── page.tsx            # Public landing page
+├── components/             # Interactive forms, managers, navigation, and providers
+├── lib/
+│   ├── auth.ts             # Auth.js configuration and callbacks
+│   ├── mail.ts             # Resend email workflows
+│   ├── prisma.ts           # Prisma client and PostgreSQL adapter
+│   ├── rate-limit.ts       # In-memory request limiter
+│   └── tokens.ts           # Cryptographically secure token helpers
+├── prisma/
+│   ├── migrations/         # Database migration history
+│   └── schema.prisma       # Relational application schema
+├── middleware.ts           # Route protection and role-based redirects
+├── next.config.ts          # Next.js and PDFKit server configuration
+├── prisma.config.ts        # Prisma schema, migration, and datasource configuration
+├── package.json            # Dependencies and npm scripts
+└── tsconfig.json           # Strict TypeScript configuration
 ```
 
 ---
@@ -645,9 +506,9 @@ tech-alchemy-crm/
 |---|---|---|
 | Public landing page | Complete | Responsive product introduction and calls to action |
 | Credentials authentication | Complete | Registration, hashed passwords, login, and JWT sessions |
-| Google OAuth | Implemented | Requires valid Google environment variables |
-| Email verification | Implemented | Requires a valid Resend sender configuration |
-| Password recovery | Implemented | Token-based request and reset flow |
+| Google OAuth | Complete | Tested and live with valid production configuration |
+| Email verification | Complete | Tested and live through Resend |
+| Password recovery | Complete | Token-based request and reset flow tested live |
 | Dashboard metrics | Complete | Live totals loaded from PostgreSQL |
 | Client management | Complete | CRUD and server-side pagination |
 | Project management | Complete | CRUD, client relationships, statuses, dates, budgets, and pagination |
@@ -655,11 +516,11 @@ tech-alchemy-crm/
 | Invoice management | Complete | CRUD, line items, tax, totals, relationships, statuses, and pagination |
 | Invoice PDF export | Complete | Authenticated server-side PDF generation |
 | Notifications | Complete | Manual creation, filtering, read state, and soft deletion |
-| Admin user directory | Implemented | Role-protected user overview and record counts |
+| Admin user directory | Complete | Role-protected user overview and record counts |
 | Admin role mutation | Complete | Promote/demote tested end-to-end; a user cannot change their own role |
 | Lead pipeline | Schema foundation | `Lead` model and statuses exist; dashboard workflow is not yet exposed |
 | Automated tests | Planned | No test command is currently defined in `package.json` |
-| Hosted demo and screenshots | Planned | Deployment URL has not been added to this README yet |
+| Hosted demo | Complete | Live deployment available at [tech-alchemy-crm.vercel.app](https://tech-alchemy-crm.vercel.app) |
 
 ---
 
@@ -668,11 +529,10 @@ tech-alchemy-crm/
 - Rate-limit counters are stored in memory and are not shared across server instances.
 - Notification creation is currently manual; domain events do not yet create reminders automatically.
 - The lead data model exists, but lead capture and pipeline screens are not yet part of the dashboard navigation.
-- The admin role-change interface still needs an end-to-end verified mutation endpoint.
 - Automated unit, integration, and end-to-end tests have not yet been added.
 - There is no client-facing portal, subscription billing, file storage, or team workspace support yet.
 - Reporting is currently limited to dashboard summary metrics.
-- A public production demo and application screenshots are still pending.
+- Application screenshots are still pending.
 
 These items are documented deliberately so the repository distinguishes the working MVP from the longer-term SaaS vision.
 
@@ -682,14 +542,13 @@ These items are documented deliberately so the repository distinguishes the work
 
 ### Near term
 
-- Complete and verify admin role updates.
 - Add the lead pipeline user interface and lead-to-client conversion.
 - Generate notifications automatically from task, project, and invoice events.
 - Add search, sorting, and richer filters to business modules.
 - Add unit tests for validation and calculations.
 - Add integration tests for authenticated resource ownership.
 - Add end-to-end tests for the main client-to-invoice workflow.
-- Publish a hosted demo and add real screenshots.
+- Add real screenshots.
 
 ### Product expansion
 
@@ -709,7 +568,7 @@ These items are documented deliberately so the repository distinguishes the work
 
 ## Deployment notes
 
-The application is designed for deployment on Vercel with a reachable PostgreSQL database.
+The application is deployed on Vercel with a reachable PostgreSQL database.
 
 1. Import the GitHub repository into Vercel.
 2. Add every required environment variable to the Vercel project.
@@ -731,7 +590,7 @@ Full-Stack Developer and Founder of **The Tech Alchemy Lab**
 - GitHub: [@keketsoleu25](https://github.com/keketsoleu25)
 - Project: [Tech Alchemy CRM](https://github.com/keketsoleu25/tech-alchemy-crm)
 
-Tech Alchemy CRM is being built as both a practical business product and a demonstration of full-stack engineering with modern React, Next.js, TypeScript, PostgreSQL, Prisma, authentication, authorization, email, and document-generation workflows.
+Tech Alchemy CRM is both a practical business product and a demonstration of full-stack engineering with modern React, Next.js, TypeScript, PostgreSQL, Prisma, authentication, authorization, email, and document-generation workflows.
 
 ---
 
@@ -740,6 +599,4 @@ Tech Alchemy CRM is being built as both a practical business product and a demon
 **Built with discipline, iteration, and a little alchemy.**
 
 </div>
->>>>>>> 121e79912a5d3509745ec386ff6b8ee67473e805
-
 
