@@ -1,271 +1,137 @@
-# 🚀 Tech Alchemy CRM
+﻿# Tech Alchemy CRM
 
-<div align="center">
+Modern CRM and business management platform built with Next.js, TypeScript, Prisma, and PostgreSQL.
 
-![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)
-![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=for-the-badge&logo=typescript)
-![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?style=for-the-badge&logo=prisma)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-336791?style=for-the-badge&logo=postgresql)
-![NextAuth](https://img.shields.io/badge/NextAuth-Authentication-black?style=for-the-badge)
-![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3-38BDF8?style=for-the-badge&logo=tailwindcss)
-
-Modern CRM & Business Management Platform built with Next.js, TypeScript and PostgreSQL.
-
-Designed for freelancers, agencies, startups and small businesses to manage clients, projects, tasks and invoices from a single platform.
-
-</div>
+Built for freelancers, agencies, and small businesses to manage clients, projects, tasks, and invoices from a single platform instead of juggling spreadsheets, Trello boards, and Word documents.
 
 ---
 
-# 🌍 Live Demo
-
-> Coming Soon
-
----
-
-# 📖 Overview
-
-Tech Alchemy CRM is a full-stack Customer Relationship Management (CRM) platform developed to centralize business operations into one modern web application.
-
-Instead of managing clients through spreadsheets, projects through Trello, invoices through Word documents, and communication through multiple platforms, Tech Alchemy CRM provides a unified workspace for managing the complete client lifecycle.
-
-The application is built using modern web technologies with scalability, maintainability, and developer experience as primary design goals.
-
----
-
-# 🎯 Project Goals
-
-The primary objective of this project was to build a production-style SaaS application that demonstrates real-world software engineering practices rather than simply showcasing frontend development.
-
-Key goals include:
-
-- Secure authentication
-- Modern dashboard interface
-- Client management
-- Project management
-- Invoice generation
-- Business reporting
-- Scalable database architecture
-- Type-safe backend development
-- Responsive user experience
-
----
-
-# 👥 Target Users
-
-Tech Alchemy CRM is designed for:
-
-- Freelancers
-- Software Developers
-- Creative Agencies
-- Consultants
-- NGOs
-- Small Businesses
-- Startups
-- Digital Marketing Agencies
-
----
-
-# ❓ Problem Statement
-
-Many small businesses rely on multiple disconnected tools to manage daily operations.
-
-Typical workflow:
-
-• Excel for clients
-
-• WhatsApp for communication
-
-• Trello for tasks
-
-• Word for invoices
-
-• Email for updates
-
-Managing information across several platforms becomes inefficient as businesses grow.
-
-Tech Alchemy CRM consolidates these workflows into a single application.
-
----
-
-# ✨ Core Features
-
-## Authentication
-
-- Secure user registration
-- Secure login
-- Password hashing
-- Session management
-- Protected routes
-
----
-
-## Dashboard
-
-- Business overview
-- Project statistics
-- Client statistics
-- Revenue overview
-- Quick actions
-
----
-
-## Client Management
-
-- Create clients
-- Edit clients
-- Delete clients
-- Client profiles
-- Contact information
-- Search functionality
-
----
-
-## Project Management
-
-- Create projects
-- Assign clients
-- Track project status
-- Monitor progress
-- Organize work
-
----
-
-## Task Management
-
-- Create tasks
-- Update task status
-- Due dates
-- Priorities
-- Progress tracking
-
----
-
-## Invoice Management
-
-- Create invoices
-- Track invoice status
-- Due dates
-- Client billing
-- PDF generation
-
----
-
-## Email Integration
-
-- Email notifications
-- Business communication
-- Resend integration
-
----
-
-# 📸 Screenshots
-
-## Dashboard
-
-> Add screenshot here
-
----
-
-## Client Management
-
-> Add screenshot here
-
----
-
-## Projects
-
-> Add screenshot here
-
----
-
-## Invoices
-
-> Add screenshot here
-
----
-
-## Authentication
-
-> Add screenshot here
-
----
-
-# 🛠 Technology Stack
+## Overview
+
+Tech Alchemy CRM centralizes the full client lifecycle — from first contact through project delivery to final invoice — into one authenticated, role-aware application. It was built as a full-stack engineering exercise, with a deliberate focus on production-readiness: server-side authorization on every route, input validation, rate limiting, pagination, and tested (not just written) functionality at every step.
+
+## Features
+
+**Authentication**
+- Email/password registration with bcrypt hashing and a defensive check against invalid password hashes
+- Google OAuth sign-in
+- Login rate limiting (5 attempts per 15 minutes per account)
+- Email verification and password reset flows via Resend
+- Role-based sessions (`USER` / `ADMIN`) via NextAuth v5 (Auth.js)
+
+**Dashboard**
+- Live stats pulled directly from the database: client count, active projects, open tasks, outstanding invoice total, unread notifications
+- Each stat links directly to its module
+
+**Clients**
+- Full CRUD, scoped per user
+- Server-side pagination
+
+**Projects**
+- Full CRUD, linked to Clients
+- Status tracking (Planning / Active / On Hold / Completed / Cancelled), budget, timeline
+- Deleting a project checks its task count first and warns explicitly before cascading the deletion
+- Server-side pagination
+
+**Tasks**
+- Full CRUD, linked to Projects
+- Status (To do / In progress / Done) and priority (Low / Medium / High)
+- Server-side pagination
+
+**Invoices**
+- Full CRUD with dynamic, multi-row line items
+- Live subtotal / tax / total calculation
+- Server-side numeric validation (rejects negative or invalid quantities and prices)
+- Auto-generated invoice numbers
+- PDF export (PDFKit)
+- Server-side pagination
+
+**Notifications**
+- Soft-delete pattern (nothing is ever hard-deleted, just marked)
+- Mark read / unread, filter by unread
+
+**Admin panel**
+- Role-gated (`ADMIN` only, server-enforced)
+- View all users, promote/demote roles
+- A user cannot change their own role (enforced server-side)
+
+**Security**
+- Every API route checks the session and scopes every query to `userId` — no data is reachable across accounts
+- Zod validation on every write endpoint
+- Rate limiting on login and all create endpoints
+- Secrets rotated and never committed (`.env` is gitignored)
+
+## Tech Stack
 
 | Category | Technology |
-|------------|------------|
-| Framework | Next.js App Router |
+|---|---|
+| Framework | Next.js (App Router, Turbopack) |
 | Language | TypeScript |
-| Database | PostgreSQL |
+| Database | PostgreSQL (Neon, serverless) |
 | ORM | Prisma |
-| Authentication | NextAuth |
+| Authentication | NextAuth v5 (Auth.js) |
 | Validation | Zod |
-| Forms | React Hook Form |
 | Styling | Tailwind CSS |
-| Icons | Lucide React |
-| Password Security | bcrypt |
+| Password hashing | bcryptjs |
 | Email | Resend |
-| PDF Generation | jsPDF |
-| Deployment | Vercel |
+| PDF generation | PDFKit |
 
----
-
-# 💡 Why These Technologies?
-
-## Next.js
-
-Provides server-side rendering, server components, API routes and excellent performance while supporting modern React development.
-
----
-
-## TypeScript
-
-Improves maintainability through static typing and catches many development errors before runtime.
-
----
-
-## Prisma ORM
-
-Prisma provides a type-safe interface for interacting with PostgreSQL while simplifying database migrations and schema management.
-
----
-
-## PostgreSQL
-
-A powerful relational database suitable for business applications requiring reliable data integrity and complex relationships.
-
----
-
-## NextAuth
-
-Chosen to implement secure authentication with session management and protected application routes.
-
----
-
-## Tailwind CSS
-
-Enables rapid UI development while maintaining consistency across the application.
-
----
-
-# 🚧 Current Development Status
+## Project Status
 
 | Module | Status |
-|---------|--------|
-| Authentication | ✅ Complete |
-| Dashboard | ✅ Complete |
-| Client Management | 🚧 In Progress |
-| Project Management | 🚧 In Progress |
-| Task Management | 🚧 In Progress |
-| Invoice System | 🚧 In Progress |
-| Email Integration | 🚧 In Progress |
-| Client Portal | 📅 Planned |
-| Reporting | 📅 Planned |
-| AI Features | 📅 Planned |
+|---|---|
+| Authentication | Complete |
+| Dashboard | Complete |
+| Client Management | Complete |
+| Project Management | Complete |
+| Task Management | Complete |
+| Invoice System | Complete |
+| PDF Export | Complete |
+| Notifications | Complete |
+| Admin Panel | Complete |
+| Pagination | Complete (all modules) |
+| Rate Limiting | Complete (login + create endpoints) |
+| Automated Tests | Not yet implemented |
+| Deployment | In progress |
+
+## Known Limitations
+
+Documented honestly rather than glossed over:
+
+- No automated test suite yet — all functionality has been manually verified in-browser through development
+- No file upload support (contracts, logos, attachments)
+- Notifications are created manually or triggered by specific actions, not yet wired to every business event (e.g. invoice overdue)
+- Uses Neon's free-tier serverless Postgres, which suspends after inactivity — the first request after idle time can be slow while the database wakes up
+
+## Getting Started
+
+```bash
+git clone https://github.com/keketsoleu25/tech-alchemy-crm.git
+cd tech-alchemy-crm
+npm install
+```
+
+Create a `.env` file with:
+
+```
+DATABASE_URL=
+AUTH_SECRET=
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+RESEND_API_KEY=
+EMAIL_FROM=
+```
+
+```bash
+npx prisma generate
+npx prisma db push
+npm run dev
+```
+
+## License
+
+Private project. All rights reserved.
 
 ---
 
-# 📈 Project Vision
-
-Tech Alchemy CRM aims to evolve into a comprehensive business operating system where organizations can manage every aspect of client relationships, project delivery and business operations through a single modern platform.
+Built by Keketso Leu · Powered by The Alchemy Lab
